@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>가무 (歌舞)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game">
+
+    <!-- 스토리 레이어 -->
+    <div id="story-layer">
+      <div id="bg-layer"></div>
+      <div id="standing-layer">
+        <img id="standing-left"  class="standing left"  alt="">
+        <img id="standing-right" class="standing right" alt="">
+      </div>
+      <div id="cutscene-layer" class="hidden">
+        <img id="cutscene-img" alt="">
+        <div id="cutscene-placeholder"></div>
+        <div id="cutscene-hint">▼ 클릭하여 계속</div>
+      </div>
+      <div id="textbox-wrap" class="hidden">
+        <div id="textbox-bg"></div>
+        <div id="speaker-box"><span id="speaker-name"></span></div>
+        <p id="dialogue-text"></p>
+        <div id="advance-hint">▼</div>
+      </div>
+      <div id="choice-area" class="hidden"></div>
+    </div>
+
+    <!-- 리듬게임 레이어 -->
+    <canvas id="rhythm-canvas" class="hidden"></canvas>
+    <div id="rhythm-hud" class="hidden">
+      <div id="rh-score">SCORE<br><span id="rh-score-val">0</span></div>
+      <div id="rh-center">
+        <div id="rh-combo-val">0</div>
+        <div id="rh-combo-label">COMBO</div>
+        <div id="rh-judgment"></div>
+      </div>
+      <div id="rh-accuracy">정확도<br><span id="rh-acc-val">100</span>%</div>
+    </div>
+
+    <!-- 타이틀 -->
+    <div id="title-screen">
+      <div id="title-deco-top"></div>
+      <div id="title-content">
+        <p class="title-sub-top">歌 舞</p>
+        <h1>가 무</h1>
+        <p class="title-hint">클릭하여 시작</p>
+      </div>
+      <div id="title-deco-bottom"></div>
+    </div>
+
+    <!-- 난이도 선택 -->
+    <div id="difficulty-screen" class="hidden">
+      <h2>난이도 선택</h2>
+      <p class="diff-subtitle">당신의 실력에 맞는 난이도를 선택하세요</p>
+      <div id="diff-buttons">
+        <button class="diff-btn" data-diff="easy">
+          <span class="diff-name">쉬움</span>
+          <span class="diff-desc">처음 하시는 분들도<br>즐길 수 있는 난이도</span>
+        </button>
+        <button class="diff-btn" data-diff="normal">
+          <span class="diff-name">보통</span>
+          <span class="diff-desc">리듬게임을 한번쯤<br>해본 분들을 위한 난이도</span>
+        </button>
+        <button class="diff-btn" data-diff="hard">
+          <span class="diff-name">어려움</span>
+          <span class="diff-desc">리듬게임 고수를 위한<br>빡센 난이도</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 튜토리얼 -->
+    <div id="tutorial-screen" class="hidden">
+      <h2 id="tut-title">연주 방법</h2>
+      <div id="tut-body">
+        <div id="tut-visual">
+          <div class="tut-lane">
+            <div class="tut-note n1"></div>
+            <div class="tut-note n2"></div>
+            <div class="tut-hit-line"></div>
+            <div class="tut-key">D</div>
+          </div>
+          <div class="tut-lane">
+            <div class="tut-note n3"></div>
+            <div class="tut-hit-line"></div>
+            <div class="tut-key">F</div>
+          </div>
+          <div class="tut-lane">
+            <div class="tut-note n2"></div>
+            <div class="tut-note n4"></div>
+            <div class="tut-hit-line"></div>
+            <div class="tut-key">J</div>
+          </div>
+          <div class="tut-lane">
+            <div class="tut-note n1"></div>
+            <div class="tut-hit-line"></div>
+            <div class="tut-key">K</div>
+          </div>
+        </div>
+        <div id="tut-rules">
+          <div class="tut-rule">
+            <span class="tut-icon">↓</span>
+            <span>노트가 위에서 아래로 내려옵니다</span>
+          </div>
+          <div class="tut-rule">
+            <span class="tut-icon">⬡</span>
+            <span>노트가 하단 라인에 닿을 때<br>해당 키를 눌러주세요</span>
+          </div>
+          <div class="tut-rule">
+            <span class="tut-icon">✦</span>
+            <span>
+              <span class="j-perfect">PERFECT</span> ±60ms &nbsp;
+              <span class="j-good">GOOD</span> ±120ms &nbsp;
+              <span class="j-miss">MISS</span>
+            </span>
+          </div>
+          <div class="tut-rule">
+            <span class="tut-icon">♪</span>
+            <span>정확도 <b>70%</b> 이상이면 연주 성공!</span>
+          </div>
+        </div>
+      </div>
+      <button id="tut-start-btn">연주 시작!</button>
+    </div>
+
+    <!-- 카운트다운 -->
+    <div id="countdown-screen" class="hidden">
+      <div id="countdown-num"></div>
+      <div id="countdown-keys">D &nbsp; F &nbsp; J &nbsp; K</div>
+    </div>
+
+    <!-- 리듬 결과 -->
+    <div id="rhythm-result-screen" class="hidden">
+      <div id="rr-content">
+        <h2 id="rr-title"></h2>
+        <div id="rr-stats"></div>
+        <button id="rr-continue-btn">계속</button>
+      </div>
+    </div>
+
+    <!-- 엔딩 -->
+    <div id="ending-screen" class="hidden">
+      <div id="ending-content">
+        <p id="ending-tag">END</p>
+        <h2 id="ending-title"></h2>
+        <p id="ending-subtitle"></p>
+        <button id="ending-retry-btn">처음으로</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="data/script.js"></script>
+  <script src="story.js"></script>
+  <script src="rhythm.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
