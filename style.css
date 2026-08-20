@@ -39,6 +39,7 @@ body {
   object-fit: cover;
   object-position: top center;
   transition: opacity 0.3s;
+  mix-blend-mode: multiply;
 }
 .standing.left  { left: 40px; }
 .standing.right {

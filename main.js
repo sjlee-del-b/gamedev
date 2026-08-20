@@ -138,10 +138,8 @@ class GameManager {
       `PERFECT: <b>${result.counts.perfect}</b> &nbsp;` +
       `GOOD: <b>${result.counts.good}</b> &nbsp;` +
       `MISS: <b>${result.counts.miss}</b><br>` +
-      `정확도: <b>${result.accuracy}%</b>` +
-      (result.success
-        ? `<br><span style="color:#c8a040;font-size:13px;">※ 70% 이상 달성!</span>`
-        : `<br><span style="color:#884040;font-size:13px;">※ 70% 미만 — 다음엔 더 잘할 수 있어요</span>`);
+      `연주 게이지: <b>${result.gauge}%</b>` +
+      (result.success ? `<br><span style="color:#c8a040;font-size:13px;">※ 게이지 70% 이상 달성!</span>` : '');
 
     this.$rrResult.classList.remove('hidden');
   }

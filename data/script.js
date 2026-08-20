@@ -29,7 +29,12 @@ const ASSETS = {
     cutscene_prince1_hand:   'assets/images/cutscene_prince1_hand.png',
     cutscene_prince2_hand:   'assets/images/cutscene_prince2_hand.png',
     cutscene_prince3_hand:   'assets/images/cutscene_prince3_hand.png',
-    cutscene_garden_walk:    'assets/images/cutscene_garden_walk.png',
+    bg_prince3_success:        'assets/images/bg_prince3_success.png',
+    bg_prince3_fail:           'assets/images/bg_prince3_fail.png',
+    // 황자별 정원 산책 컷신 (3-2) — 파일 추가하면 자동 적용
+    cutscene_prince1_garden:   'assets/images/cutscene_prince1_garden.png',
+    cutscene_prince2_garden:   'assets/images/cutscene_prince2_garden.png',
+    cutscene_prince3_garden:   'assets/images/bg_prince3_success.png',
     cutscene_villain_garden: 'assets/images/cutscene_villain_garden.png',
     cutscene_prince1_leave:  'assets/images/cutscene_prince1_leave.png',
     cutscene_prince2_leave:  'assets/images/cutscene_prince2_leave.png',
@@ -130,7 +135,7 @@ const SCENES = {
       { type: 'text', speaker: '황자', text: '...황자님이라 부를 필요 없다.' },
       { type: 'text', speaker: '황자', text: '(황자1 이름)이라 부르도록.' },
     ],
-    next: 'success_choice',
+    next: 'success_choice_p1',
   },
 
   // ── 성공 황자 2 ───────────────────────────────────────────────────
@@ -145,15 +150,16 @@ const SCENES = {
       { type: 'text', speaker: '황자', text: '(이름), 이리와. 잠깐 나가자.' },
       { type: 'text', speaker: '황자', text: '그냥, 연회는 지루하고— 네가 여기서 그나마 덜 지루하니까.' },
     ],
-    next: 'success_choice',
+    next: 'success_choice_p2',
   },
 
   // ── 성공 황자 3 ───────────────────────────────────────────────────
+  // 3-1 컷신(손 내밀기): cutscene_prince3_hand.png 넣으면 자동 적용
   success_prince3: {
     steps: [
-      { type: 'cutscene', key: 'cutscene_prince3_hand', label: '[ 컷신: 황자3 손 내밀기 ]' },
-      { type: 'bg', key: 'bg_hall' },
-      { type: 'standing', slot: 'right', key: 'prince3_normal' },
+      { type: 'bg', key: 'cutscene_prince3_hand' },
+      { type: 'hide', slot: 'left' },
+      { type: 'hide', slot: 'right' },
       { type: 'text', speaker: '황자', text: '오늘 그대의 연주를 들을 수 있어서 기뻤어요.' },
       { type: 'text', speaker: '황자', text: '오랫동안 이름만 들어봤는데, 직접 만나니… 더 반갑네요.' },
       { type: 'text', speaker: '황자', text: '정원에 꽃이 한창 아름답게 피었는데.' },
@@ -169,6 +175,15 @@ const SCENES = {
     choices: [
       { text: '황자를 따라 나간다', next: 'normal_ending' },
       { text: '(악녀)가 뒷문으로 나간 것 같은데… 따라가 볼까?', next: 'villain_monologue' },
+    ],
+  },
+
+  // ── 성공 선택지 (황자2) ───────────────────────────────────────────
+  success_choice_p2: {
+    steps: [],
+    choices: [
+      { text: '황자를 따라 나간다', next: 'normal_ending_p2' },
+      { text: '(악녀)가 뒷문으로 나간 것 같은데… 따라가 볼까?', next: 'villain_monologue_p2' },
     ],
   },
 
@@ -222,10 +237,34 @@ const SCENES = {
     next: '__ENDING__:hidden',
   },
 
+  // ── 악녀 따라가기 전 독백 (황자2) ─────────────────────────────────
+  villain_monologue_p2: {
+    steps: [
+      { type: 'hide', slot: 'right' },
+      { type: 'hide', slot: 'left' },
+      { type: 'text', speaker: '', text: '\'이제 성공할 수 있는데, 따라가서 뭐해.\'' },
+      { type: 'text', speaker: '', text: '\'인생 역전의 기회가 눈 앞에 있잖아.\'' },
+      { type: 'text', speaker: '', text: '\'다시 가난해지고 싶진 않아.\'' },
+      { type: 'text', speaker: '', text: '\'.... 그래도 따라가볼까...?\'' },
+    ],
+    choices: [
+      { text: '따라 나간다', next: 'hidden_ending' },
+      { text: '황자를 따라 나간다', next: 'normal_ending_p2' },
+    ],
+  },
+
   // ── 일반 엔딩 ─────────────────────────────────────────────────────
   normal_ending: {
     steps: [
       { type: 'cutscene', key: 'cutscene_garden_walk', label: '[ 컷신: 황자와 함께 정원 산책 ]' },
+    ],
+    next: '__ENDING__:normal',
+  },
+
+  // ── 일반 엔딩 (황자2) ─────────────────────────────────────────────
+  normal_ending_p2: {
+    steps: [
+      { type: 'cutscene', key: 'cutscene_prince2_garden', label: '[ 컷신: 황자2와 함께 정원 산책 ]' },
     ],
     next: '__ENDING__:normal',
   },
@@ -259,12 +298,12 @@ const SCENES = {
   // ── 실패 황자 3 ───────────────────────────────────────────────────
   fail_prince3: {
     steps: [
-      { type: 'bg', key: 'bg_hall' },
-      { type: 'standing', slot: 'right', key: 'prince3_normal' },
+      { type: 'bg', key: 'bg_prince3_fail' },
+      { type: 'hide', slot: 'left' },
+      { type: 'hide', slot: 'right' },
       { type: 'text', speaker: '황자', text: '...수고하셨습니다.' },
       { type: 'text', speaker: '황자', text: '많이 긴장하신 것 같군요.' },
       { type: 'text', speaker: '황자', text: '이만 돌아가셔서 쉬시는 게 좋을 것 같습니다.' },
-      { type: 'cutscene', key: 'cutscene_prince3_leave', label: '[ 컷신: 뒤돌아 떠나는 황자3 ]' },
     ],
     next: '__ENDING__:fail',
   },
@@ -299,8 +338,8 @@ const RHYTHM_CONFIG = {
   goodMs:           120,
   difficulty: {
     //           속도   밀도  노트간격(박)  최대동시  미스패널티(%)
-    easy:   { speed: 170, density: 0.28, intervalBeats: 1.8,  maxChord: 1, missPenalty: 8 },
-    normal: { speed: 245, density: 0.44, intervalBeats: 0.9,  maxChord: 2, missPenalty: 12 },
+    easy:   { speed: 205, density: 0.36, intervalBeats: 1.3,  maxChord: 1, missPenalty: 8 },
+    normal: { speed: 285, density: 0.52, intervalBeats: 0.7,  maxChord: 2, missPenalty: 12 },
     hard:   { speed: 330, density: 0.60, intervalBeats: 0.5,  maxChord: 3, missPenalty: 16 },
   },
 };

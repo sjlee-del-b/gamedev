@@ -38,18 +38,14 @@ class RhythmGame {
     this.score      = 0;
     this.combo      = 0;
     this.maxCombo   = 0;
-    this.totalNotes = 0;
-    this.hitCount   = 0;
     this.counts     = { perfect: 0, good: 0, miss: 0 };
     this.pressed    = {};
     this.running    = true;
     this.animId     = null;
     this.judgeTimer = null;
     this.audio      = null;
-    this._danceFrames = [];
     this.gauge      = 100;   // 연주 게이지 (0이 되면 즉시 실패)
 
-    this._loadDanceFrames();
     this._loadBgImage();
     this._generateNotes();
     this._updateHUD();
@@ -78,17 +74,6 @@ class RhythmGame {
     this._bgImage.src = ASSETS.images.bg_hall;
   }
 
-  // ── 댄스 프레임 로딩 ─────────────────────────────────────────────────
-
-  _loadDanceFrames() {
-    const keys = ['dance_1', 'dance_2', 'dance_3', 'dance_4'];
-    this._danceFrames = keys.map(k => {
-      const img = new Image();
-      img.src = ASSETS.images[k];
-      return img;
-    });
-  }
-
   // ── 노트 생성 ────────────────────────────────────────────────────────
 
   _generateNotes() {
@@ -112,7 +97,6 @@ class RhythmGame {
         const p = patterns[Math.floor(Math.random() * patterns.length)];
         for (const lane of p) {
           this.notes.push({ lane, time: t, hit: false, missed: false });
-          this.totalNotes++;
         }
       }
       t += beatMs * cfg.intervalBeats;
@@ -171,7 +155,6 @@ class RhythmGame {
     this.combo++;
     if (this.combo > this.maxCombo) this.maxCombo = this.combo;
     this.score += pts + Math.floor(this.combo / 10) * 50;
-    this.hitCount++;
     this.counts[type.toLowerCase()]++;
 
     // PERFECT +1% 회복, GOOD 변화 없음
@@ -194,10 +177,7 @@ class RhythmGame {
   _updateHUD() {
     this.scoreEl.textContent = this.score.toLocaleString();
     this.comboEl.textContent = this.combo;
-    const acc = this.totalNotes > 0
-      ? Math.round((this.hitCount / this.totalNotes) * 100)
-      : 100;
-    this.accEl.textContent = acc;
+    this.accEl.textContent = Math.ceil(this.gauge);
   }
 
   // ── 메인 루프 ────────────────────────────────────────────────────────
@@ -347,8 +327,6 @@ class RhythmGame {
     // 연주 게이지
     this._drawGauge();
 
-    // 댄스 캐릭터
-    this._drawDanceCharacter(elapsed);
   }
 
   // ── 연주 게이지 ──────────────────────────────────────────────────────
@@ -400,148 +378,20 @@ class RhythmGame {
     ctx.stroke();
   }
 
-  // ── 댄스 캐릭터 렌더링 ───────────────────────────────────────────────
-
-  _drawDanceCharacter(elapsed) {
-    const ctx    = this.ctx;
-    const beatMs = 60000 / RHYTHM_CONFIG.bpm;
-
-    // 프레임 인덱스: 매 박자마다 전환
-    const frameIdx = Math.floor(elapsed / beatMs) % 4;
-
-    // 댄스 영역: 레인 왼쪽 공간 (x: 5~158)
-    const DX = 7, DY = 55, DW = 148, DH = 480;
-    const cx = DX + DW / 2;
-
-    // 이미지 있으면 그리기
-    const img = this._danceFrames[frameIdx];
-    if (img && img.complete && img.naturalWidth > 0) {
-      ctx.drawImage(img, DX, DY, DW, DH);
-      return;
-    }
-
-    // ── 플레이스홀더: 스틱 피겨 애니메이션 ──
-    const halfBeat = Math.floor(elapsed / (beatMs / 2)) % 2;  // 반박 단위 토글
-    const bounce   = halfBeat === 0 ? 0 : -10;
-    const armAngle = halfBeat === 0 ? 0.5 : -0.8;  // 라디안
-
-    // 배경 글로우
-    const grd = ctx.createRadialGradient(cx, DY + DH * 0.6, 10, cx, DY + DH * 0.6, 80);
-    grd.addColorStop(0, 'rgba(200,160,60,0.06)');
-    grd.addColorStop(1, 'rgba(200,160,60,0)');
-    ctx.fillStyle = grd;
-    ctx.fillRect(DX, DY, DW, DH);
-
-    // 구분선 (레인과 경계)
-    ctx.strokeStyle = 'rgba(180,140,50,0.12)';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([4, 6]);
-    ctx.beginPath();
-    ctx.moveTo(DX + DW, DY);
-    ctx.lineTo(DX + DW, DY + DH);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    const baseY = DY + DH * 0.72 + bounce;
-    const color = 'rgba(200,160,60,0.75)';
-    ctx.strokeStyle = color;
-    ctx.fillStyle   = color;
-    ctx.lineWidth   = 3.5;
-    ctx.lineCap     = 'round';
-    ctx.lineJoin    = 'round';
-
-    ctx.save();
-    ctx.translate(cx, baseY);
-
-    // 머리
-    ctx.beginPath();
-    ctx.arc(0, -108, 20, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // 머리카락 (심플하게)
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(0, -122, 14, Math.PI, 0);
-    ctx.fill();
-
-    // 몸통
-    ctx.strokeStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(0, -88);
-    ctx.lineTo(0, -28);
-    ctx.stroke();
-
-    // 치마 (삼각형)
-    ctx.fillStyle = 'rgba(200,160,60,0.35)';
-    ctx.beginPath();
-    ctx.moveTo(-8, -28);
-    ctx.lineTo(8, -28);
-    ctx.lineTo(22, 18);
-    ctx.lineTo(-22, 18);
-    ctx.closePath();
-    ctx.fill();
-    ctx.strokeStyle = color;
-    ctx.stroke();
-
-    // 왼팔
-    ctx.save();
-    ctx.translate(-8, -72);
-    ctx.rotate(-armAngle - 0.3);
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(-28, 30);
-    ctx.stroke();
-    ctx.restore();
-
-    // 오른팔
-    ctx.save();
-    ctx.translate(8, -72);
-    ctx.rotate(armAngle + 0.3);
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(28, 30);
-    ctx.stroke();
-    ctx.restore();
-
-    // 왼다리
-    ctx.beginPath();
-    ctx.moveTo(-6, 18);
-    ctx.lineTo(halfBeat === 0 ? -18 : -10, 55);
-    ctx.stroke();
-
-    // 오른다리
-    ctx.beginPath();
-    ctx.moveTo(6, 18);
-    ctx.lineTo(halfBeat === 0 ? 10 : 22, 55);
-    ctx.stroke();
-
-    ctx.restore();
-
-    // 안내 텍스트
-    ctx.fillStyle = 'rgba(180,140,50,0.22)';
-    ctx.font = '10px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('dance_1~4.png', cx, DY + DH - 14);
-  }
-
   // ── 종료 ────────────────────────────────────────────────────────────
 
   _finish() {
     this.stop();
 
-    const accuracy = this.totalNotes > 0
-      ? this.hitCount / this.totalNotes
-      : 0;
-    const gaugeOk = this.gauge > 0;
+    const gauge = Math.round(this.gauge);
 
     if (this.onComplete) {
       this.onComplete({
-        success:  gaugeOk && accuracy >= RHYTHM_CONFIG.successThreshold,
+        success:  this.gauge >= RHYTHM_CONFIG.successThreshold * 100,
         score:    this.score,
         maxCombo: this.maxCombo,
         counts:   { ...this.counts },
-        accuracy: Math.round(accuracy * 100),
+        gauge,
       });
     }
   }
