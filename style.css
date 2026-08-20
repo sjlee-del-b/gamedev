@@ -98,8 +98,7 @@ body {
 #textbox-bg {
   position: absolute;
   inset: 0;
-  background: url('assets/images/textbox.png') center/100% 100% no-repeat,
-              linear-gradient(to top, rgba(230,220,205,0.97), rgba(240,232,215,0.95));
+  background: url('assets/images/textbox.png') center/100% 100% no-repeat;
   border-top: none;
 }
 
